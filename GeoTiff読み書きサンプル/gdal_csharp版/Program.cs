@@ -22,10 +22,10 @@ namespace ConsoleApp1
             sw.Start();
             try
             {
-                SetDllDirectory(@"C:\Users\me\source\oss\DotSpatial-master\Source\bin\x64\Release\gdal\x64");
+                SetDllDirectory(gdal_wrap.dllが置いてあるフォルダパス。例えば@"～\DotSpatial-master\Source\bin\x64\Release\gdal\x64"とか);
 
-                string loadfilepath = @"E:\Data\fuji.tif";
-                string savefilepath = @"C:\Users\me\Desktop\test.tif";
+                string loadfilepath = 読み込むファイルパス;
+                string savefilepath = 書き込みファイルパス;
 
                 Gdal.AllRegister();
 
