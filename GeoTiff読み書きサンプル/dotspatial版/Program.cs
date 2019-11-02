@@ -46,7 +46,8 @@ namespace ConsoleApp1
                 double cellsize_y = pGT[5];
 
                 IRaster dst = Raster.CreateRaster(savefilepath, src.DriverCode, ncol - 2, nrow - 2, 1, src.DataType, new[] { string.Empty });
-                dst.NoDataValue = src.NoDataValue;
+                dst.NoDataValue = nodata;
+                dst.ProjectionString = prj;
                 dst.Bounds = new RasterBounds(nrow - 2, ncol - 2,
                     new double[] { xllcenter + cellsize_x / 2, cellsize_x, 0, yllcenter + cellsize_y / 2, 0, cellsize_y });
 
