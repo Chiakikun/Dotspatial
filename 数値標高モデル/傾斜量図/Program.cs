@@ -14,8 +14,8 @@ namespace Keisharyozu
         static void Main(string[] args)
         {
             string dllpath = @"D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\gdal\x86";
-            string loadfilepath = @"D:\source\backup\幌延町DEM\幌延DEM\幌延DEM.tif";
-            string savefilepath = @"d:\保存先.tif";
+            string loadfilepath = @"D:\DEM.tif";
+            string savefilepath = @"D:\保存先.tif";
 
             SetDllDirectory(dllpath);
 
