@@ -124,7 +124,7 @@ namespace Kaidozu
                     GetMinMax(src, x, y, -1,-1, P_Diag, radius, out fais[7], out sais[7]); // 315
 
                     double cfai = 0, csai = 0;
-                    for (int i = 0; i < radius; i++)
+                    for (int i = 0; i < 8; i++)
                     {
                         if (fais[i] > -9999)
                             cfai+=1;
@@ -136,6 +136,7 @@ namespace Kaidozu
                         else
                             sais[i] = 0;
                     }
+
                     above[y, x] = (fais[0] + fais[1] + fais[2] + fais[3] + fais[4] + fais[5] + fais[6] + fais[7]) / cfai;
                     below[y, x] = (sais[0] + sais[1] + sais[2] + sais[3] + sais[4] + sais[5] + sais[6] + sais[7]) / csai;
                 }
