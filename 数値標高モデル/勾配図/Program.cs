@@ -41,9 +41,9 @@ namespace Kobaizu
             IRaster dst = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             dst.NoDataValue = nodata;
             dst.ProjectionString = prj;
-            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2.0, cellsize_x, 0, yllcenter - cellsize_y / 2.0, 0, cellsize_y });
 
-            Kobaizu(src.Value, nrow - 1, ncol - 1, dst.Value);
+            Kobaizu(src.Value, nrow, ncol, dst.Value);
 
             dst.Save();
 
@@ -58,14 +58,13 @@ namespace Kobaizu
             double dx = 10.242;
             double dy = 12.369;
 
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
+            for (int x = 0; x < ncol; x++)
+            {
+                for (int y = 0; y < nrow; y++)
+                {
                     dst[y, x] = -9999;
 
-            for (int x = 1; x < ncol; x++)
-            {
-                for (int y = 1; y < nrow; y++)
-                {
+                    if ((x < 1) || (y < 1) || (x >= ncol - 1) || (y >= nrow - 1)) continue; // srcより1周り小さい範囲内でなければ計算できない
                     double H11 = src[y - 1, x - 1]; if (H11 == -9999) continue;
                     double H12 = src[y - 1, x]; if (H12 == -9999) continue;
                     double H13 = src[y - 1, x + 1]; if (H13 == -9999) continue;
@@ -75,9 +74,9 @@ namespace Kobaizu
                     double H32 = src[y + 1, x]; if (H32 == -9999) continue;
                     double H33 = src[y + 1, x + 1]; if (H33 == -9999) continue;
 
-                    double Ix = ((H11 + 2 * H21 + H31) - (H13 + 2 * H23 + H33)) / (8 * dx);
-                    double Iy = ((H11 + 2 * H12 + H13) - (H31 + 2 * H32 + H33)) / (8 * dy);
-                    double I = Math.Pow(Math.Atan(Math.Pow(Ix, 2) + Math.Pow(Iy, 2)), 0.5) * 180 / Math.PI;
+                    double Ix = ((H11 + 2.0 * H21 + H31) - (H13 + 2.0 * H23 + H33)) / (8.0 * dx);
+                    double Iy = ((H11 + 2.0 * H12 + H13) - (H31 + 2.0 * H32 + H33)) / (8.0 * dy);
+                    double I = Math.Pow(Math.Atan(Math.Pow(Ix, 2) + Math.Pow(Iy, 2)), 0.5) * 180.0 / Math.PI;
 
                     dst[y, x] = I;
                 }
