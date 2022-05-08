@@ -78,7 +78,7 @@ namespace Kifukuryozu
                     {
                         for (int n = y - r; n <= y + r; n++)
                         {
-                            if ((dsrc[y, x] > -9999) && (m >= 0) && (n >= 0) && (m < ncol) && (n < nrow))
+                            if ((dsrc[y, x] > -9999) && (m >= 0) && (n >= 0) && (m < ncol) && (n < nrow) && (dsrc[n, m] > -9999) )
                             {
                                 minelv = Math.Min(minelv, dsrc[n, m]);
                                 maxelv = Math.Max(maxelv, dsrc[n, m]);
