@@ -57,9 +57,6 @@ namespace Kifukuryozu
         {
             int r = 5;    // 窓サイズ
 
-            double dx = 8.763;
-            double dy = 12.348;
-
             double[,] dsrc = new double[nrow, ncol];
 
             for (int x = 0; x < ncol; x++)
