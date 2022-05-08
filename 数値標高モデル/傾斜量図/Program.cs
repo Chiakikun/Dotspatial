@@ -74,11 +74,11 @@ namespace Keisharyozu
                     double H32 = src[y + 1, x];     if (H32 == -9999) continue;
                     double H33 = src[y + 1, x + 1]; if (H33 == -9999) continue;
 
-                    double Sx = (H11 + H21 + H31 - (H13 + H23 + H33)) / (6 * dx);
-                    double Sy = (H11 + H12 + H13 - (H31 + H32 + H33)) / (6 * dy);
+                    double Sx = (H11 + H21 + H31 - (H13 + H23 + H33)) / (6.0 * dx);
+                    double Sy = (H11 + H12 + H13 - (H31 + H32 + H33)) / (6.0 * dy);
                     double S = Math.Pow((Math.Pow(Sx, 2) + Math.Pow(Sy, 2)), 0.5);
 
-                    dst[y, x] = S * 1000;
+                    dst[y, x] = S * 1000.0;
                 }
             }
             return;
