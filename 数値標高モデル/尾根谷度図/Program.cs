@@ -43,9 +43,9 @@ namespace OneTanidozu
             IRaster dst = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             dst.NoDataValue = nodata;
             dst.ProjectionString = prj;
-            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
-            OneTanidozu(above.Value, below.Value, nrow - 1, ncol - 1, dst.Value);
+            OneTanidozu(above.Value, below.Value, nrow, ncol, dst.Value);
 
             dst.Save();
 
@@ -57,21 +57,18 @@ namespace OneTanidozu
 
         static void OneTanidozu(IValueGrid above, IValueGrid below, int nrow, int ncol, IValueGrid dst)
         {
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
+            for (int x = 0; x < ncol; x++)
+            {
+                for (int y = 0; y < nrow; y++)
+                {
                     dst[y, x] = -9999;
 
-            for (int x = 1; x < ncol; x++)
-            {
-                for (int y = 1; y < nrow; y++)
-                {
                     double az = above[y, x];
                     double bz = below[y, x];
-
                     if (az <= -9999 || bz <= -9999)
                         continue;
 
-                    dst[y, x] = (az - bz) / 2;
+                    dst[y, x] = (az - bz) / 2.0;
                 }
             }
             return;
