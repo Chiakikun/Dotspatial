@@ -38,19 +38,19 @@ namespace Keishahenkansenzu
             double cellsize_y = pGT[5];
 
             // 遷急線・遷緩線図
-            string savefilepath = @"d:\kankyu.tif";
+            string savefilepath = @"d:\遷急線・遷緩線図.tif";
             IRaster kankyu = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             kankyu.NoDataValue = nodata;
             kankyu.ProjectionString = prj;
-            kankyu.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            kankyu.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
             // 尾根・谷線図
-            savefilepath = @"d:\onetani.tif";
+            savefilepath = @"d:\尾根・谷線図.tif";
             IRaster onetani = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             onetani.NoDataValue = nodata;
             onetani.ProjectionString = prj;
-            onetani.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            onetani.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
-            Keishahenkansenzu(src.Value, nrow - 1, ncol - 1, kankyu.Value, onetani.Value);
+            Keishahenkansenzu(src.Value, nrow, ncol, kankyu.Value, onetani.Value);
             kankyu.Save();
             onetani.Save();
 
@@ -67,17 +67,15 @@ namespace Keishahenkansenzu
             double dx2 = Math.Pow(dx, 2);
             double dy2 = Math.Pow(dy, 2);
 
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
-                {
-                    kankyu[y, x] = -9999;
-                    onetani[y, x] = -9999;
-                }
 
-            for (int x = 1; x < ncol; x++)
+            for (int x = 0; x < ncol; x++)
             {
-                for (int y = 1; y < nrow; y++)
+                for (int y = 0; y < nrow; y++)
                 {
+                    kankyu[y, x]  = -9999;
+                    onetani[y, x] = -9999;
+
+                    if ((x < 1) || (y < 1) || (x >= ncol - 1) || (y >= nrow - 1)) continue;
                     double H11 = src[y - 1, x - 1]; if (H11 == -9999) continue;
                     double H12 = src[y - 1, x];     if (H12 == -9999) continue;
                     double H13 = src[y - 1, x + 1]; if (H13 == -9999) continue;
@@ -125,7 +123,7 @@ namespace Keishahenkansenzu
 
                     // この辺は好みに応じて調整する
                     if (-0.01 < onetani[y, x] && onetani[y, x] < 0.01) onetani[y, x] = -9999;
-                    if (-0.01 < kankyu[y, x] && kankyu[y, x] < 0.01) kankyu[y, x] = -9999;                    
+                    if (-0.01 < kankyu[y, x]  && kankyu[y, x]  < 0.01) kankyu[y, x]  = -9999;                    
                 }
             }
             return;
