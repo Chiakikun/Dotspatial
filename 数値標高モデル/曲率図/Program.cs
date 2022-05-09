@@ -41,9 +41,9 @@ namespace Kyokuritsuzu
             IRaster dst = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             dst.NoDataValue = nodata;
             dst.ProjectionString = prj;
-            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
-            Kyokuritsuzu(src.Value, nrow - 1, ncol - 1, dst.Value);
+            Kyokuritsuzu(src.Value, nrow, ncol, dst.Value);
 
             dst.Save();
 
@@ -58,14 +58,13 @@ namespace Kyokuritsuzu
             double dx = 8.763;
             double dy = 12.348;
 
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
+            for (int x = 0; x < ncol; x++)
+            {
+                for (int y = 0; y < nrow; y++)
+                {
                     dst[y, x] = -9999;
 
-            for (int x = 1; x < ncol; x++)
-            {
-                for (int y = 1; y < nrow; y++)
-                {
+                    if ((x < 1) || (y < 1) || (x >= ncol - 1) || (y >= nrow - 1)) continue; // srcより1周り小さい範囲内でなければ計算できない
                     double H11 = src[y - 1, x - 1]; if (H11 == -9999) continue;
                     double H12 = src[y - 1, x];     if (H12 == -9999) continue;
                     double H13 = src[y - 1, x + 1]; if (H13 == -9999) continue;
