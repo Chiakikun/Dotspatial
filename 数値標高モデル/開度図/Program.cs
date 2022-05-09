@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
 
 using DotSpatial.Data;
 using DotSpatial.Data.Rasters.GdalExtension;
@@ -17,8 +16,8 @@ namespace Kaidozu
         {
             string dllpath = @"D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\gdal\x86";
             string loadfilepath = @"D:\DEM.tif";
-            string abovesavefilepath = @"D:\地上.tif";
-            string belowsavefilepath = @"D:\地下.tif";
+            string abovesavefilepath = @"D:\地上開度.tif";
+            string belowsavefilepath = @"D:\地下開度.tif";
 
             SetDllDirectory(dllpath);
 
@@ -44,15 +43,15 @@ namespace Kaidozu
             IRaster above = Raster.CreateRaster(abovesavefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             above.NoDataValue = -9999;
             above.ProjectionString = prj;
-            above.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2.0, cellsize_x, 0, yllcenter + cellsize_x / 2.0, 0, cellsize_y });
+            above.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
             IRaster below = Raster.CreateRaster(belowsavefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             below.NoDataValue = -9999;
             below.ProjectionString = prj;
-            below.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2.0, cellsize_x, 0, yllcenter + cellsize_x / 2.0, 0, cellsize_y });
+            below.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
             int radius = 3;
-            Kaido(src.Value, nrow - 1, ncol - 1, above.Value, below.Value, radius);
+            Kaido(src.Value, nrow, ncol, above.Value, below.Value, radius);
 
             above.Save();
             below.Save();
@@ -96,24 +95,21 @@ namespace Kaidozu
             double P_Horz = dx;
             double P_Diag = Math.Sqrt(Math.Pow(dy, 2) + Math.Pow(dx, 2));
 
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
-                { 
-                    above[y, x] = -9999;
-                    below[y, x] = -9999;
-                }
-
             int istart = radius - 1;
             int iendx = ncol - radius;
             int iendy = nrow - radius;
-            for (int x = istart; x < iendx; x++)
+            for (int x = 0; x < ncol; x++)
             {
-                for (int y = istart; y < iendy; y++)
+                for (int y = 0; y < nrow; y++)
                 {
+                    above[y, x] = -9999;
+                    below[y, x] = -9999;
+
                     if (src[y, x] <= -9999) continue;
+                    if ((x < istart) || (y < istart) || (x > iendx) || (y > iendy)) continue;
+
                     double[] fais = new double[8];
                     double[] sais = new double[8];
-
                     GetMinMax(src, x, y, 0, -1, P_Vert, radius, out fais[0], out sais[0]); // 0
                     GetMinMax(src, x, y, 1, -1, P_Diag, radius, out fais[1], out sais[1]); // 45
                     GetMinMax(src, x, y, 1,  0, P_Horz, radius, out fais[2], out sais[2]); // 90
