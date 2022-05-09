@@ -14,7 +14,7 @@ namespace Suikeimitsudozu
         static void Main(string[] args)
         {
             string dllpath = @"D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\gdal\x86";
-            string loadfilepath = @"D:\DEM.tif";
+            string loadfilepath = @"D:\DEM.tif"; // 尾根谷図の出力を使う
             string savefilepath = @"D:\保存先.tif";
 
             SetDllDirectory(dllpath);
@@ -41,9 +41,9 @@ namespace Suikeimitsudozu
             IRaster dst = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             dst.NoDataValue = nodata;
             dst.ProjectionString = prj;
-            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
-            Suikeimitsudo(src.Value, nrow - 1, ncol - 1, dst.Value);
+            Suikeimitsudo(src.Value, nrow, ncol, dst.Value);
 
             dst.Save();
 
@@ -53,24 +53,32 @@ namespace Suikeimitsudozu
         }
 
 
-        static void Suikeimitsudo(IValueGrid src, int nrow, int ncol, IValueGrid dst)
+        static bool isTani(double value)
         {
-            int r = 7;
+            if (value > -9999 && value > 0.5)
+                return true;
 
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
-                    dst[y, x] = -9999;
+            return false;
+        }
 
-            for (int x = 1; x < ncol; x++)
+
+        static void Suikeimitsudo(IValueGrid gsrc, int nrow, int ncol, IValueGrid dst)
+        {
+            int r = 10;
+
+            double[,] src = new double[nrow, ncol];
+            for (int x = 0; x < ncol; x++)
+                for (int y = 0; y < nrow; y++)
+                    src[y, x] = gsrc[y, x];
+
+            for (int x = 0; x < ncol; x++)
             {
-                for (int y = 1; y < nrow; y++)
+                for (int y = 0; y < nrow; y++)
                 {
-                    if (src[y, x] == -9999)
-                        continue;
+                    dst[y, x] = -9999;
+                    if(src[y, x] <= -9999) continue;
 
                     int count = 0;
-
-                    double tani = -1;  // 適当に調整
 
                     int fluct_x = 0, fluct_y = 0;
                     for (int x_axis = 0; x_axis <= r; x_axis++)
@@ -83,7 +91,7 @@ namespace Suikeimitsudozu
                             fluct_y = i;
                             if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                             {
-                                if ((src[y + fluct_y, x + fluct_x] <= tani) && (src[y + fluct_y, x + fluct_x] > -9999))
+                                if (isTani(src[y + fluct_y, x + fluct_x]))
                                     count++;
                             }
 
@@ -94,7 +102,7 @@ namespace Suikeimitsudozu
                             {
                                 if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                                 {
-                                    if ((src[y + fluct_y, x + fluct_x] <= tani) && (src[y + fluct_y, x + fluct_x] > -9999))
+                                    if (isTani(src[y + fluct_y, x + fluct_x]))
                                         count++;
                                 }
                             }
@@ -106,7 +114,7 @@ namespace Suikeimitsudozu
                             {
                                 if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                                 {
-                                    if ((src[y + fluct_y, x + fluct_x] <= tani) && (src[y + fluct_y, x + fluct_x] > -9999))
+                                    if (isTani(src[y + fluct_y, x + fluct_x]))
                                         count++;
                                 }
                             }
@@ -118,13 +126,12 @@ namespace Suikeimitsudozu
                             {
                                 if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                                 {
-                                    if ((src[y + fluct_y, x + fluct_x] <= tani) && (src[y + fluct_y, x + fluct_x] > -9999))
+                                    if (isTani(src[y + fluct_y, x + fluct_x]))
                                         count++;
                                 }
                             }
                         }
                     }
-
 
                     dst[y, x] = count;
                 }
