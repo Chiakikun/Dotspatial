@@ -14,7 +14,7 @@ namespace Texturezu
         static void Main(string[] args)
         {
             string dllpath = @"D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\gdal\x86";
-            string loadfilepath = @"D:\DEM.tif";
+            string loadfilepath = @"D:\DEM.tif"; // 尾根谷図の出力を使う
             string savefilepath = @"D:\保存先.tif";
 
             SetDllDirectory(dllpath);
@@ -41,9 +41,9 @@ namespace Texturezu
             IRaster dst = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             dst.NoDataValue = nodata;
             dst.ProjectionString = prj;
-            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
-            Texture(src.Value, nrow - 1, ncol - 1, dst.Value);
+            Texture(src.Value, nrow, ncol, dst.Value);
 
             dst.Save();
 
@@ -53,26 +53,37 @@ namespace Texturezu
         }
 
 
-        static void Texture(IValueGrid src, int nrow, int ncol, IValueGrid dst)
+        static bool isTaniOne(double value)
+        {
+            // 適当に調整
+            double tani = -0.5;
+            double one = 0.5;
+
+            if ((value > -9999) && (value <= tani || value >= one))
+                return true;
+
+            return false;
+        }
+
+
+        static void Texture(IValueGrid gsrc, int nrow, int ncol, IValueGrid dst)
         {
             int r = 10;
 
-            for (int x = 0; x <= ncol; x++)
-                for (int y = 0; y <= nrow; y++)
-                    dst[y, x] = -9999;
+            double[,] src = new double[nrow, ncol];
+            for (int x = 0; x < ncol; x++)
+                for (int y = 0; y < nrow; y++)
+                    src[y, x] = gsrc[y, x];
 
-            for (int x = 1; x < ncol; x++)
+            for (int x = 0; x < ncol; x++)
             {
-                for (int y = 1; y < nrow; y++)
+                for (int y = 0; y < nrow; y++)
                 {
+                    dst[y, x] = -9999;
                     if (src[y, x] == -9999)
                         continue;
 
                     int count = 0;
-
-                    // 適当に調整
-                    double tani = -0.5;  
-                    double one  =  0.5;
 
                     int fluct_x = 0, fluct_y = 0;
                     for (int x_axis = 0; x_axis <= r; x_axis++)
@@ -80,15 +91,12 @@ namespace Texturezu
                         int y_axis = (int)Math.Truncate(Math.Sqrt(Math.Pow(r, 2) - Math.Pow(x_axis, 2)));
                         for (int i = 0; i <= y_axis; i++)
                         {
-                            double z;
-
                             // 第1象限
                             fluct_x = x_axis;
                             fluct_y = i;
                             if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                             {
-                                z = src[y + fluct_y, x + fluct_x];
-                                if ((z > -9999) && (z <= tani || z >= one))
+                                if(isTaniOne(src[y + fluct_y, x + fluct_x]))
                                     count++;
                             }
 
@@ -99,8 +107,7 @@ namespace Texturezu
                             {
                                 if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                                 {
-                                    z = src[y + fluct_y, x + fluct_x];
-                                    if ((z > -9999) && (z <= tani || z >= one))
+                                    if (isTaniOne(src[y + fluct_y, x + fluct_x]))
                                         count++;
                                 }
                             }
@@ -112,8 +119,7 @@ namespace Texturezu
                             {
                                 if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                                 {
-                                    z = src[y + fluct_y, x + fluct_x];
-                                    if ((z > -9999) && (z <= tani || z >= one))
+                                    if (isTaniOne(src[y + fluct_y, x + fluct_x]))
                                         count++;
                                 }
                             }
@@ -125,8 +131,7 @@ namespace Texturezu
                             {
                                 if ((x + fluct_x >= 0) && (y + fluct_y >= 0) && (x + fluct_x < ncol) && (y + fluct_y < nrow))
                                 {
-                                    z = src[y + fluct_y, x + fluct_x];
-                                    if ((z > -9999) && (z <= tani || z >= one))
+                                    if (isTaniOne(src[y + fluct_y, x + fluct_x]))
                                         count++;
                                 }
                             }
