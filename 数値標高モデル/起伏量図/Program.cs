@@ -41,9 +41,9 @@ namespace Kifukuryozu
             IRaster dst = Raster.CreateRaster(savefilepath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             dst.NoDataValue = nodata;
             dst.ProjectionString = prj;
-            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            dst.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
 
-            Kifukuryo(src.Value, nrow - 1, ncol - 1, dst.Value);
+            Kifukuryo(src.Value, nrow, ncol, dst.Value);
 
             dst.Save();
 
@@ -58,22 +58,19 @@ namespace Kifukuryozu
             int r = 5;    // 窓サイズ
 
             double[,] dsrc = new double[nrow, ncol];
-
             for (int x = 0; x < ncol; x++)
                 for (int y = 0; y < nrow; y++)
-                {
-                    dst[y, x] = -9999;
                     dsrc[y, x] = src[y, x];
-                }
 
             for (int x = 0; x < ncol; x++)
             {
                 for (int y = 0; y < nrow; y++)
                 {
+                    dst[y, x] = -9999;
+
                     // 窓領域内の最高標高、最低標高
                     double minelv = double.PositiveInfinity;
                     double maxelv = double.NegativeInfinity;
-
                     for (int m = x - r; m <= x + r; m++)
                     {
                         for (int n = y - r; n <= y + r; n++)
