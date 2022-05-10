@@ -88,8 +88,8 @@ namespace Kaidozu
 
         static void Kaido(IValueGrid src, int nrow, int ncol, IValueGrid above, IValueGrid below, int radius)
         {
-            double dx = 10.242;
-            double dy = 12.369;
+            double dx = 8.763;
+            double dy = 12.348;
 
             double P_Vert = dy;
             double P_Horz = dx;

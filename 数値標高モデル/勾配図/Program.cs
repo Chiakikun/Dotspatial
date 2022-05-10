@@ -55,8 +55,8 @@ namespace Kobaizu
 
         static void Kobaizu(IValueGrid src, int nrow, int ncol, IValueGrid dst)
         {
-            double dx = 10.242;
-            double dy = 12.369;
+            double dx = 8.763;
+            double dy = 12.348;
 
             for (int x = 0; x < ncol; x++)
             {

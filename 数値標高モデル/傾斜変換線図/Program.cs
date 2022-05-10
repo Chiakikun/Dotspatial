@@ -62,8 +62,8 @@ namespace Keishahenkansenzu
 
         static void Keishahenkansenzu(IValueGrid src, int nrow, int ncol, IValueGrid kankyu, IValueGrid onetani)
         {
-            double dx = 10.242;
-            double dy = 12.346;
+            double dx = 8.763;
+            double dy = 12.348;
             double dx2 = Math.Pow(dx, 2);
             double dy2 = Math.Pow(dy, 2);
 
