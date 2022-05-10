@@ -42,12 +42,14 @@ namespace Seppomenzu
             IRaster seppou = Raster.CreateRaster(seppoupath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             seppou.NoDataValue = nodata;
             seppou.ProjectionString = prj;
-            seppou.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
+            seppou.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
             IRaster sekkoku = Raster.CreateRaster(sekkokupath, null, ncol, nrow, 1, typeof(float), new[] { string.Empty });
             sekkoku.NoDataValue = nodata;
             sekkoku.ProjectionString = prj;
-            sekkoku.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_x / 2, 0, cellsize_y });
-            Seppomen(src.Value, nrow - 1, ncol - 1, seppou.Value, sekkoku.Value);
+            sekkoku.Bounds = new RasterBounds(nrow, ncol, new double[] { xllcenter - cellsize_x / 2, cellsize_x, 0, yllcenter - cellsize_y / 2, 0, cellsize_y });
+
+            Seppomen(src.Value, nrow, ncol, seppou.Value, sekkoku.Value);
+
             seppou.Save();
             sekkoku.Save();
 
@@ -60,27 +62,33 @@ namespace Seppomenzu
         static void Seppomen(IValueGrid src, int nrow, int ncol, IValueGrid seppou, IValueGrid sekkoku)
         {
             int r = 5;    // 窓サイズ
-            int cal = 20; // 計算回数
+            int cal = 10; // 計算回数
 
-            double[,] targetsep = new double[nrow, ncol];
-            double[,] targetsek = new double[nrow, ncol];
+            double[,] srcsep = new double[nrow, ncol];
+            double[,] srcsek = new double[nrow, ncol];
 
             for (int x = 0; x < ncol; x++)
                 for (int y = 0; y < nrow; y++)
                 {
-                    targetsep[y, x] = src[y, x];
-                    targetsek[y, x] = src[y, x];
+                    srcsep[y, x] = src[y, x];
+                    srcsek[y, x] = src[y, x];
                 }
 
             for (int i = 0; i < cal; i++)
             {
-                double[,] tmpseppou  = targetsep.Clone() as double[,];
-                double[,] tmpsekkoku = targetsek.Clone() as double[,];
+                double[,] dstsep = srcsep.Clone() as double[,];
+                double[,] dstsek = srcsek.Clone() as double[,];
 
                 for (int x = 0; x < ncol; x++)
                 {
                     for (int y = 0; y < nrow; y++)
                     {
+                        dstsep[y, x] = -9999;
+                        dstsek[y, x] = -9999;
+
+                        if (srcsep[y, x] <= -9999)
+                            continue;
+
                         // 窓領域内の平均
                         double cgridsep = 0;
                         double sumsep = 0;
@@ -90,34 +98,37 @@ namespace Seppomenzu
                         {
                             for (int n = y - r; n <= y + r; n++)
                             {
-                                if ((targetsep[y, x] > -9999) && (m >= 0) && (n >= 0) && (m < ncol) && (n < nrow) && (targetsep[n, m] > -9999))
+                                if ((m < 0) || (n < 0) || (m >= ncol) || (n >= nrow))
+                                    continue;
+
+                                if ((srcsep[y, x] > -9999) && (srcsep[n, m] > -9999))
                                 {
                                     cgridsep += 1;
-                                    sumsep += targetsep[n, m];
+                                    sumsep += srcsep[n, m];
                                 }
-                                if ((targetsek[y, x] > -9999) && (m >= 0) && (n >= 0) && (m < ncol) && (n < nrow) && (targetsek[n, m] > -9999))
+                                if ((srcsek[y, x] > -9999) && (srcsek[n, m] > -9999))
                                 {
                                     cgridsek += 1;
-                                    sumsek += targetsek[n, m];
+                                    sumsek += srcsek[n, m];
                                 }
                             }
                         }
                         double avg = sumsep / cgridsep;
-                        tmpseppou[y, x]  = targetsep[y, x] <= avg ? avg : targetsep[y, x];
+                        dstsep[y, x]  = srcsep[y, x] <= avg ? avg : srcsep[y, x];
                         avg = sumsek / cgridsek;
-                        tmpsekkoku[y, x] = targetsek[y, x] >= avg ? avg : targetsek[y, x];
+                        dstsek[y, x] = srcsek[y, x] >= avg ? avg : srcsek[y, x];
                     }
                 }
 
-                targetsep = tmpseppou.Clone()  as double[,];
-                targetsek = tmpsekkoku.Clone() as double[,];
+                srcsep = dstsep.Clone() as double[,];
+                srcsek = dstsek.Clone() as double[,];
             }
 
             for (int x = 0; x < ncol; x++)
                 for (int y = 0; y < nrow; y++)
                 {
-                    seppou[y, x]  = targetsep[y, x];
-                    sekkoku[y, x] = targetsek[y, x];
+                    seppou[y, x]  = srcsep[y, x];
+                    sekkoku[y, x] = srcsek[y, x];
                 }
         }
     }
