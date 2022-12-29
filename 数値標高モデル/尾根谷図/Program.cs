@@ -66,16 +66,20 @@ namespace Onetani
                     double H12 = src[y - 1, x];     if (H12 == -9999) continue;
                     double H13 = src[y - 1, x + 1]; if (H13 == -9999) continue;
                     double H21 = src[y, x - 1];     if (H21 == -9999) continue;
+                    double H22 = src[y, x];         if (H22 == -9999) continue;
                     double H23 = src[y, x + 1];     if (H23 == -9999) continue;
                     double H31 = src[y + 1, x - 1]; if (H31 == -9999) continue;
                     double H32 = src[y + 1, x];     if (H32 == -9999) continue;
                     double H33 = src[y + 1, x + 1]; if (H33 == -9999) continue;
 
-                    double[] shui = new double[] { H11, H12, H13, H21, H23, H31, H32, H33 };
+                    double[] shui = new double[] { H11, H12, H13, H21, H22, H23, H31, H32, H33 };
                     Array.Sort(shui);
-                    double med = (shui[3] + shui[4]) / 2;
+                    double dtmp = shui[4] - src[y, x];
 
-                    dst[y, x] = med - src[y, x];
+                    if (dtmp > 0)
+                        dst[y, x] = 1;
+                    else if (dtmp < 0)
+                        dst[y, x] = -1;
                 }
             }
             return;
