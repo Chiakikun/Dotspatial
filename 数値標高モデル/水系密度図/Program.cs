@@ -14,7 +14,7 @@ namespace Suikeimitsudozu
         static void Main(string[] args)
         {
             string dllpath = @"D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\gdal\x86";
-            string loadfilepath = @"D:\DEM.tif"; // 尾根谷図の出力を使う
+            string loadfilepath = @"D:\尾根谷図.tif"; // 尾根谷図の出力を使う
             string savefilepath = @"D:\保存先.tif";
 
             SetDllDirectory(dllpath);
@@ -55,12 +55,8 @@ namespace Suikeimitsudozu
 
         static bool isTani(double value)
         {
-            if (value > -9999 && value > 0.5)
-                return true;
-
-            return false;
+            return value >= 1 ? true : false;
         }
-
 
         static void Suikeimitsudo(IValueGrid gsrc, int nrow, int ncol, IValueGrid dst)
         {
@@ -69,14 +65,18 @@ namespace Suikeimitsudozu
             double[,] src = new double[nrow, ncol];
             for (int x = 0; x < ncol; x++)
                 for (int y = 0; y < nrow; y++)
-                    src[y, x] = gsrc[y, x];
+                {
+                    if (src[y, x] <= -9999)
+                        src[y, x] = 0;
+                    else
+                        src[y, x] = gsrc[y, x];
+                }
 
             for (int x = 0; x < ncol; x++)
             {
                 for (int y = 0; y < nrow; y++)
                 {
                     dst[y, x] = -9999;
-                    if(src[y, x] <= -9999) continue;
 
                     int count = 0;
 
