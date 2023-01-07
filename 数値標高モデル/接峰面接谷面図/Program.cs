@@ -113,6 +113,8 @@ namespace Seppomenzu
                                 }
                             }
                         }
+
+                        // 平均標高の方が元の標高値よりも低くなっているグリッドに元の標高値を代入
                         double avg = sumsep / cgridsep;
                         dstsep[y, x]  = srcsep[y, x] <= avg ? avg : srcsep[y, x];
                         avg = sumsek / cgridsek;

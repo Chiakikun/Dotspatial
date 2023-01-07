@@ -34,10 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotSpatial.Data">
-      <HintPath>..\..\..\DotSpatial-master\Source\bin\Debug\DotSpatial.Data.dll</HintPath>
+      <HintPath>D:\DotSpatial-master\Source\bin\Debug\DotSpatial.Data.dll</HintPath>
     </Reference>
     <Reference Include="DotSpatial.Data.Rasters.GdalExtension">
-      <HintPath>..\..\..\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\DotSpatial.Data.Rasters.GdalExtension.dll</HintPath>
+      <HintPath>D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\DotSpatial.Data.Rasters.GdalExtension.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
