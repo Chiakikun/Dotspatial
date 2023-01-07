@@ -14,7 +14,7 @@ namespace Texturezu
         static void Main(string[] args)
         {
             string dllpath = @"D:\DotSpatial-master\Source\bin\Debug\Windows Extensions\DotSpatial.Data.Rasters.GdalExtension\gdal\x86";
-            string loadfilepath = @"D:\DEM.tif"; // 尾根谷図の出力を使う
+            string loadfilepath = @"D:\尾根谷図.tif"; // 尾根谷図の出力を使う
             string savefilepath = @"D:\保存先.tif";
 
             SetDllDirectory(dllpath);
@@ -55,14 +55,10 @@ namespace Texturezu
 
         static bool isTaniOne(double value)
         {
-            // 適当に調整
-            double tani = -0.5;
-            double one = 0.5;
+            double tani = 1;
+            double one = -1;
 
-            if ((value > -9999) && (value <= tani || value >= one))
-                return true;
-
-            return false;
+            return ((one < value) && (value < tani)) ? false : true;
         }
 
 
@@ -81,7 +77,12 @@ namespace Texturezu
                 {
                     dst[y, x] = -9999;
                     if (src[y, x] == -9999)
-                        continue;
+                    {
+                        if (src[y, x] <= -9999)
+                            src[y, x] = 0;
+                        else
+                            src[y, x] = gsrc[y, x];
+                    }
 
                     int count = 0;
 
